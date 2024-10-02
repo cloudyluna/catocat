@@ -8,9 +8,12 @@ import Catocat.Wrapper.YampaRaylib (yampaRaylibTimeInit, yampaRaylibTimeSense)
 import Control.Monad (when)
 import FRP.Yampa
 import FRP.Yampa qualified as Yampa
+import GHC.IORef (IORef (IORef), newIORef)
 import Raylib.Core qualified as RL
 import Raylib.Core.Shapes qualified as RL
 import Raylib.Core.Text qualified as RL
+import Raylib.Core.Textures qualified as RL
+import Raylib.Types (Texture)
 import Raylib.Util.Colors qualified as RL
 
 
@@ -23,7 +26,7 @@ boxSide = 30
 
 
 width :: (Num a) => a
-width = 640
+width = 800
 height :: (Num a) => a
 height = 480
 
@@ -41,16 +44,6 @@ falling y0 v0 = proc () -> do
     returnA -< (py, vy)
 
 
-{- | Vertical coordinate and velocity of a bouncing mass starting
-at a height with an initial velicity.
--}
-update :: Double -> Double -> SF () (Double, Double)
-update y vy =
-    switch
-        (falling y vy >>> (Yampa.identity &&& hitBottom))
-        (\(y, vy) -> update y (-vy))
-
-
 {- | Fire an event when the input height and velocity indicate
 that the object has hit the bottom (so it's falling and the
 vertical position is under the floor).
@@ -60,7 +53,7 @@ hitBottom =
     arr
         ( \(y, vy) ->
             let boxTop = y + fromIntegral boxSide
-             in if (boxTop > fromIntegral height) && (vy > 0)
+             in if (boxTop > fromIntegral @Int height) && (vy > 0)
                     then Yampa.Event (y, vy)
                     else Yampa.NoEvent
         )
@@ -72,19 +65,34 @@ hitBottom =
 -- | Initialise rendering system.
 initGame :: (MonadIO m) => m ()
 initGame = do
-    liftIO $ RL.initWindowUnmanaged 800 600 "Cat O Cat"
+    liftIO $ RL.initWindowUnmanaged width (height + 160) "Cat O Cat"
     liftIO $ RL.setTargetFPS 60
 
 
+preload :: (MonadIO m) => m Texture
+preload = liftIO $ RL.loadTexture "assets/sprites/player_spritesheet.png"
+
+
+{- | Vertical coordinate and velocity of a bouncing mass starting
+at a height with an initial velicity.
+-}
+update :: GameEnv -> Double -> Double -> SF () (Double, Double)
+update gameEnv y vy =
+    switch
+        (falling y vy >>> (Yampa.identity &&& hitBottom))
+        (\(bY, vbY) -> update gameEnv bY (-vbY))
+
+
 -- | Display a box at a position.
-display :: (MonadIO m) => (Double, Double) -> m ()
-display (boxY, _) = do
-    liftIO RL.beginDrawing
-    liftIO $ RL.clearBackground RL.rayWhite
-    liftIO $ do
-        RL.drawText "Meow" 200 300 50 RL.black
-        RL.drawRectangle 20 (round boxY) 100 100 RL.green
-    liftIO RL.endDrawing
+render :: (MonadIO m) => GameEnv -> (Double, Double) -> m ()
+render gameEnv (boxY, _) = liftIO $ do
+    RL.beginDrawing
+
+    RL.clearBackground RL.rayWhite
+    RL.drawText "Meow" 200 300 50 RL.black
+    RL.drawRectangle 20 (round boxY) 100 100 RL.green
+
+    RL.endDrawing
 
 
 terminateAppIfExitingWindow :: (MonadIO m) => m Bool
@@ -92,6 +100,9 @@ terminateAppIfExitingWindow = do
     isTrue <- liftIO $ (== 1) <$> RL.c'windowShouldClose
     when isTrue $ liftIO RL.c'closeWindow
     pure isTrue
+
+
+data GameEnv = GameEnv {}
 
 
 run :: IO ()
@@ -103,5 +114,8 @@ run = do
             dtSecs <- yampaRaylibTimeSense timeRef
             pure (dtSecs, Nothing)
         )
-        (\_ e -> display e >> terminateAppIfExitingWindow)
-        (update (fromIntegral @Int height / 2) 0)
+        ( \_ e -> do
+            render GameEnv{} e
+            terminateAppIfExitingWindow
+        )
+        (update GameEnv{} (fromIntegral @Int height / 2) 0)
