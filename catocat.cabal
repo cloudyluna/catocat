@@ -78,6 +78,14 @@ library
   exposed-modules:
     Catocat
     Catocat.Prelude
+    Catocat.Prelude.VectorSpace
+    Catocat.Wrapper.YampaRaylib
+    Catocat.Game.Constant
+    Catocat.Game.GameEnv
+    Catocat.Game.Message
+    Catocat.Game.Initialize
+    Catocat.Game.Update
+    Catocat.Game.Render
   -- Modules included in this library but not exported.
   -- other-modules:
   -- LANGUAGE extensions used by modules in this package.
@@ -85,10 +93,13 @@ library
   -- Other library packages from which modules are imported.
   build-depends:
     base ^>=4.18.2.1,
+    simple-affine-space,
+    array,
     bytestring,
     containers,
     deepseq,
     bluefin,
+    mtl,
     directory,
     filepath,
     file-embed,
@@ -140,3 +151,6 @@ test-suite catocat-test
   build-depends:
     base ^>=4.18,
     catocat,
+    QuickCheck,
+    yampa-test,
+    hedgehog,
