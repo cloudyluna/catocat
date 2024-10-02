@@ -90,6 +90,7 @@ library
     containers,
     deepseq,
     bluefin,
+    mtl,
     directory,
     filepath,
     file-embed,

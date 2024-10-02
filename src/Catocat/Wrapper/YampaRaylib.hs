@@ -28,6 +28,8 @@ updateTime timeRef newTime = do
 
 yampaRaylibTimeSense :: IORef Int -> IO DTime
 yampaRaylibTimeSense timeRef = do
+    -- TODO: I think we just want straight up delta seconds here.
+    -- We should replace with RL.getFrameTime as it is far simple if that's the case.
     newTime <- round . (* 1000.0) <$> getTime
 
     -- Obtain time difference

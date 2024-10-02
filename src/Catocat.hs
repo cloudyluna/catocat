@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows #-}
+{-# LANGUAGE DerivingStrategies #-}
 
 module Catocat (run) where
 
@@ -69,11 +70,10 @@ hitBottom =
 
 
 -- | Initialise rendering system.
-initGraphs :: (MonadIO m) => m ()
-initGraphs = do
+initGame :: (MonadIO m) => m ()
+initGame = do
     liftIO $ RL.initWindowUnmanaged 800 600 "Cat O Cat"
     liftIO $ RL.setTargetFPS 60
-    pass
 
 
 -- | Display a box at a position.
@@ -82,8 +82,8 @@ display (boxY, _) = do
     liftIO RL.beginDrawing
     liftIO $ RL.clearBackground RL.rayWhite
     liftIO $ do
-        RL.drawText "Meow" 200 300 200 RL.black
-        RL.drawRectangle 20 (round boxY) 100 100 RL.black
+        RL.drawText "Meow" 200 300 50 RL.black
+        RL.drawRectangle 20 (round boxY) 100 100 RL.green
     liftIO RL.endDrawing
 
 
@@ -98,11 +98,10 @@ run :: IO ()
 run = do
     timeRef <- yampaRaylibTimeInit
     reactimate
-        initGraphs
+        initGame
         ( \_ -> do
             dtSecs <- yampaRaylibTimeSense timeRef
             pure (dtSecs, Nothing)
         )
         (\_ e -> display e >> terminateAppIfExitingWindow)
         (update (fromIntegral @Int height / 2) 0)
-    putStrLn "some"
