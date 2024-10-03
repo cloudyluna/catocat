@@ -1,19 +1,23 @@
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE FieldSelectors #-}
 
 module Catocat (run) where
 
 import Catocat.Prelude
 import Catocat.Wrapper.YampaRaylib (yampaRaylibTimeInit, yampaRaylibTimeSense)
 import Control.Monad (when)
+import Data.IORef (IORef)
+import Data.Maybe (fromJust)
 import FRP.Yampa
 import FRP.Yampa qualified as Yampa
-import GHC.IORef (IORef (IORef), newIORef)
+import GHC.IORef (newIORef, readIORef, writeIORef)
 import Raylib.Core qualified as RL
 import Raylib.Core.Shapes qualified as RL
 import Raylib.Core.Text qualified as RL
 import Raylib.Core.Textures qualified as RL
-import Raylib.Types (Texture)
+import Raylib.Types
+import Raylib.Types qualified as RL
 import Raylib.Util.Colors qualified as RL
 
 
@@ -63,35 +67,26 @@ hitBottom =
 
 
 -- | Initialise rendering system.
-initGame :: (MonadIO m) => m ()
+initGame :: IO Texture
 initGame = do
-    liftIO $ RL.initWindowUnmanaged width (height + 160) "Cat O Cat"
-    liftIO $ RL.setTargetFPS 60
+    RL.initWindowUnmanaged width (height + 160) "Cat O Cat"
+    RL.setTargetFPS 60
+    preload
 
 
-preload :: (MonadIO m) => m Texture
-preload = liftIO $ RL.loadTexture "assets/sprites/player_spritesheet.png"
-
-
-{- | Vertical coordinate and velocity of a bouncing mass starting
-at a height with an initial velicity.
--}
-update :: GameEnv -> Double -> Double -> SF () (Double, Double)
-update gameEnv y vy =
-    switch
-        (falling y vy >>> (Yampa.identity &&& hitBottom))
-        (\(bY, vbY) -> update gameEnv bY (-vbY))
+preload :: IO Texture
+preload = RL.loadTexture "assets/sprites/player_spritesheet.png"
 
 
 -- | Display a box at a position.
-render :: (MonadIO m) => GameEnv -> (Double, Double) -> m ()
-render gameEnv (boxY, _) = liftIO $ do
+render :: GameEnv -> IO ()
+render gameEnv = liftIO $ do
     RL.beginDrawing
 
     RL.clearBackground RL.rayWhite
-    RL.drawText "Meow" 200 300 50 RL.black
-    RL.drawRectangle 20 (round boxY) 100 100 RL.green
-
+    RL.drawText (show $ _controller gameEnv) 200 300 50 RL.black
+    let texture = fromJust . _texture . _player $ gameEnv
+    RL.drawTextureRec texture (Rectangle 0 0 64 64) (Vector2 100 100) RL.rayWhite
     RL.endDrawing
 
 
@@ -102,20 +97,81 @@ terminateAppIfExitingWindow = do
     pure isTrue
 
 
-data GameEnv = GameEnv {}
+defVector2 :: Vector2
+defVector2 = Vector2 0.0 0.0
+
+
+defRectangle :: Rectangle
+defRectangle = Rectangle 0.0 0.0 0.0 0.0
+
+
+data Player = Player
+    { _position :: !Vector2
+    , _texture :: !(Maybe Texture)
+    , _spriteFrame :: !Rectangle
+    }
+    deriving (Show, Eq)
+
+
+makePlayer :: Vector2 -> Maybe Texture -> Rectangle -> Player
+makePlayer = Player
+
+
+data Direction = West | East | Stopped deriving (Show, Eq)
+data PressedDownKey = A | D | NoPressedDownKey deriving (Show, Eq)
+
+
+data GameEnv = GameEnv {_player :: !Player, _controller :: !PressedDownKey}
+
+
+makeGameEnv :: Player -> PressedDownKey -> GameEnv
+makeGameEnv = GameEnv
+
+
+processRaylibController :: IORef GameEnv -> IO GameEnv
+processRaylibController envState = do
+    env <- readIORef envState
+    isKeyDown <- RL.isKeyDown RL.KeyA
+    if isKeyDown
+        then do
+            writeIORef envState (updatedEnv env)
+            pure (updatedEnv env)
+        else pure env{_controller = NoPressedDownKey}
+  where
+    updatedEnv env = env{_controller = A}
 
 
 run :: IO ()
 run = do
     timeRef <- yampaRaylibTimeInit
+
+    gameEnvRef <-
+        newIORef $
+            makeGameEnv
+                (makePlayer defVector2 Nothing defRectangle)
+                NoPressedDownKey
     reactimate
-        initGame
+        ( do
+            playerTexture <- initGame
+            env <- readIORef gameEnvRef
+            let updatedPlayer = (_player env){_texture = Just playerTexture}
+            let newEnv = env{_player = updatedPlayer}
+            writeIORef gameEnvRef newEnv
+            pure newEnv
+        )
         ( \_ -> do
             dtSecs <- yampaRaylibTimeSense timeRef
-            pure (dtSecs, Nothing)
+            env <- processRaylibController gameEnvRef
+            pure (dtSecs, Just env)
         )
-        ( \_ e -> do
-            render GameEnv{} e
+        ( \_ env -> do
+            render env
             terminateAppIfExitingWindow
         )
-        (update GameEnv{} (fromIntegral @Int height / 2) 0)
+        update
+
+
+update :: SF GameEnv GameEnv
+update = proc gameEnv -> do
+    t <- time -< ()
+    returnA -< gameEnv
