@@ -142,3 +142,4 @@ test-suite catocat-test
   build-depends:
     base ^>=4.18,
     catocat,
+    yampa-test
