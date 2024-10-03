@@ -10,6 +10,7 @@ import FRP.Yampa
 import Raylib.Core qualified as RL
 import Raylib.Types
 import Raylib.Types qualified as RL
+import Raylib.Util.Math (Vector (zero))
 
 
 simulate :: SF GameEnv GameEnv
@@ -27,12 +28,12 @@ onPress field a = fmap (fmap (const a)) $ fmap field controller >>> edge
 
 playerPos :: SF GameEnv Vector2
 playerPos = proc env -> do
-    goUp <- onPress _ctrlUp (Vector2 0 (-1)) -< env
-    goDown <- onPress _ctrlDown (Vector2 0 1) -< env
-    goLeft <- onPress _ctrlLeft (Vector2 (-1) 0) -< env
-    goRight <- onPress _ctrlRight (Vector2 1 0) -< env
+    goUp <- onPress _ctrlUp (Vector2 0 (-20)) -< env
+    goDown <- onPress _ctrlDown (Vector2 0 20) -< env
+    goLeft <- onPress _ctrlLeft (Vector2 (-20) 0) -< env
+    goRight <- onPress _ctrlRight (Vector2 20 0) -< env
 
-    direction <- hold $ Vector2 0 1 -< asum [goUp, goDown, goLeft, goRight]
+    direction <- hold zero -< asum [goUp, goDown, goLeft, goRight]
     pos <- integral -< direction
     returnA -< pos
 
@@ -40,10 +41,10 @@ playerPos = proc env -> do
 processRaylibKeyboardInputs :: IORef GameEnv -> IO GameEnv
 processRaylibKeyboardInputs envRef = do
     env <- readIORef envRef
-    isKeyWDown <- RL.isKeyDown RL.KeyW
-    isKeySDown <- RL.isKeyDown RL.KeyS
-    isKeyADown <- RL.isKeyDown RL.KeyA
-    isKeyDDown <- RL.isKeyDown RL.KeyD
+    isKeyWDown <- RL.isKeyPressed RL.KeyW
+    isKeySDown <- RL.isKeyPressed RL.KeyS
+    isKeyADown <- RL.isKeyPressed RL.KeyA
+    isKeyDDown <- RL.isKeyPressed RL.KeyD
 
     let newEnv =
             env

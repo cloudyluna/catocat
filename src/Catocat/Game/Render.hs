@@ -16,12 +16,13 @@ render gameEnv = liftIO $ do
     RL.beginDrawing
 
     RL.clearBackground RL.rayWhite
-    -- let texture = fromJust . _texture . _player $ gameEnv
-    -- RL.drawTextureRec texture (Rectangle 0 0 64 64) (Vector2 100 100) RL.rayWhite
-    let pos = _position . _player $ gameEnv
-    let x = round $ vector2'x pos
-    let y = round $ vector2'y pos
 
-    RL.drawText "YES" x y 50 RL.black
+    let texture = fromJust . _texture . _player $ gameEnv
+    let pos = _position . _player $ gameEnv
+    let x = vector2'x pos
+    let y = vector2'y pos
+    RL.drawTextureRec texture (Rectangle 0 0 64 64) (Vector2 x y) RL.rayWhite
+
+    RL.drawText "YES" 250 250 50 RL.black
 
     RL.endDrawing

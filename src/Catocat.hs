@@ -27,13 +27,15 @@ run = do
     reactimate
         -- Initiate once.
         ( do
-            _ <- initGame
+            playerTexture <- initGame
             env <- readIORef gameEnvRef
-            writeIORef gameEnvRef env
-            pure env
+            let newEnv = env{_player = (_player env){_texture = Just playerTexture}}
+            writeIORef gameEnvRef newEnv
+            pure newEnv
         )
         ( \_ -> do
-            dtSecs <- yampaRaylibTimeSense timeRef
+            dtSecs <- realToFrac <$> RL.getFrameTime
+            -- dtSecs <- yampaRaylibTimeSense timeRef
             env <- processRaylibKeyboardInputs gameEnvRef
             pure (dtSecs, Just env)
         )

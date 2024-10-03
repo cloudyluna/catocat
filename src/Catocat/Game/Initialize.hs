@@ -8,10 +8,11 @@ import Raylib.Types
 
 
 -- | Initialise rendering system.
-initGame :: IO ()
+initGame :: IO Texture
 initGame = do
     newCString "Cat O Cat" >>= RL.c'initWindow 600 480
     RL.setTargetFPS 60
+    preload
 
 
 preload :: IO Texture
