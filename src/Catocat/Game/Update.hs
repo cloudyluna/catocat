@@ -10,17 +10,17 @@ import FRP.Yampa
 import Raylib.Core qualified as RL
 import Raylib.Types
 import Raylib.Types qualified as RL
+import Raylib.Util.Math
 
 
 update :: SF GameEnv GameEnv
 update = proc gameEnv -> do
     t <- time -< ()
 
-    let oldX = vector2'x $ _position $ _player gameEnv
-    let oldY = vector2'y $ _position $ _player gameEnv
+    let oldPos = _position $ _player gameEnv
     let player = _player gameEnv
-    let goLeft = player{_position = Vector2 (oldX - 1) oldY}
-    let goRight = player{_position = Vector2 (oldX + 1) oldY}
+    let goLeft = player{_position = oldPos |+| Vector2 0 1}
+    let goRight = player{_position = oldPos |-| Vector2 0 1}
 
     returnA -< gameEnv
 
@@ -31,19 +31,6 @@ controller = notImplemented
 
 onPress :: (Controller -> Bool) -> a -> SF () (Event a)
 onPress field a = fmap (fmap (const a)) $ fmap field controller >>> edge
-
-
-keyDownEvents :: SF () (Event Vector2)
-keyDownEvents =
-    (\keyUp keyDown keyLeft keyRight -> asum [keyUp, keyDown, keyLeft, keyRight])
-        <$> onPress _ctrlUp (Vector2 0 (-1))
-        <*> onPress _ctrlDown (Vector2 0 1)
-        <*> onPress _ctrlLeft (Vector2 0 (-1))
-        <*> onPress _ctrlRight (Vector2 0 1)
-
-
-walkDirection :: SF () Vector2
-walkDirection = keyDownEvents >>> hold (Vector2 0 1)
 
 
 playerPos :: SF () Vector2
