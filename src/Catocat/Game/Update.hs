@@ -18,11 +18,16 @@ update = proc gameEnv -> do
 processRaylibController :: IORef GameEnv -> IO GameEnv
 processRaylibController envState = do
     env <- readIORef envState
-    isKeyDown <- RL.isKeyDown RL.KeyA
-    if isKeyDown
+    isKeyADown <- RL.isKeyDown RL.KeyA
+    isKeyDDown <- RL.isKeyDown RL.KeyD
+    if isKeyADown || isKeyDDown
         then do
-            writeIORef envState (updatedEnv env)
-            pure (updatedEnv env)
+            writeIORef envState (updatedEnv env isKeyADown isKeyDDown)
+            pure (updatedEnv env isKeyADown isKeyDDown)
         else pure env{_controller = NoPressedDownKey}
   where
-    updatedEnv env = env{_controller = A}
+    updatedEnv env a d = env{_controller = checkKey a d}
+    checkKey a d
+        | a = A
+        | d = D
+        | otherwise = NoPressedDownKey
