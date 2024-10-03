@@ -79,6 +79,11 @@ library
     Catocat
     Catocat.Prelude
     Catocat.Wrapper.YampaRaylib
+    Catocat.Game.Constant
+    Catocat.Game.GameEnv
+    Catocat.Game.Initialize
+    Catocat.Game.Update
+    Catocat.Game.Render
   -- Modules included in this library but not exported.
   -- other-modules:
   -- LANGUAGE extensions used by modules in this package.
