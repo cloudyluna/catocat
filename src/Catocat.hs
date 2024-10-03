@@ -13,13 +13,14 @@ import Control.Monad (when)
 import FRP.Yampa
 import GHC.IORef (newIORef, readIORef, writeIORef)
 import Raylib.Core qualified as RL
+import Raylib.Util.Math qualified as RLM
 
 
 run :: IO ()
 run = do
     timeRef <- yampaRaylibTimeInit
     let spriteFrame = makeSpriteFrame defRectangle 0 0
-        player = makePlayer defVector2 Nothing spriteFrame
+        player = makePlayer RLM.zero Nothing spriteFrame
         gameEnv = makeGameEnv player defController
     gameEnvRef <- newIORef gameEnv
 

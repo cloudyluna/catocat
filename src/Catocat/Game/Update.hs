@@ -7,7 +7,6 @@ import Catocat.Prelude
 import Data.Foldable
 import Data.IORef
 import FRP.Yampa
-import Linear
 import Raylib.Core qualified as RL
 import Raylib.Types
 import Raylib.Types qualified as RL
@@ -55,7 +54,7 @@ playerPos = proc i -> do
     goRight <- onPress _ctrlRight (Vector2 1 0) -< i
 
     direction <- hold $ Vector2 0 1 -< asum [goUp, goDown, goLeft, goRight]
-    pos <- notImplemented -< direction
+    pos <- integral -< direction
     returnA -< pos
 
 

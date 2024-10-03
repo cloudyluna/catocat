@@ -5,10 +5,6 @@ module Catocat.Game.GameEnv where
 import Raylib.Types
 
 
-defVector2 :: Vector2
-defVector2 = Vector2 0.0 0.0
-
-
 defRectangle :: Rectangle
 defRectangle = Rectangle 0.0 0.0 0.0 0.0
 

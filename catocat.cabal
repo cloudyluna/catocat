@@ -78,6 +78,7 @@ library
   exposed-modules:
     Catocat
     Catocat.Prelude
+    Catocat.Prelude.VectorSpace
     Catocat.Wrapper.YampaRaylib
     Catocat.Game.Constant
     Catocat.Game.GameEnv

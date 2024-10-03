@@ -4,6 +4,7 @@ module Catocat.Prelude (
     notImplemented,
 ) where
 
+import Catocat.Prelude.VectorSpace ()
 import Control.Monad.IO.Class
 
 
