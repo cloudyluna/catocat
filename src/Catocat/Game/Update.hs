@@ -34,13 +34,29 @@ onPress :: (Controller -> Bool) -> a -> SF () (Event a)
 onPress field a = fmap (fmap (const a)) $ fmap field controller >>> edge
 
 
-arrowEvents :: (Num a) => SF () (Event (V2 a))
-arrowEvents =
+keyDownEvents :: SF () (Event Vector2)
+keyDownEvents =
     (\keyUp keyDown keyLeft keyRight -> asum [keyUp, keyDown, keyLeft, keyRight])
-        <$> onPress _ctrlUp (V2 0 0)
-        <*> onPress _ctrlDown (V2 0 0)
-        <*> onPress _ctrlLeft (V2 0 0)
-        <*> onPress _ctrlRight (V2 0 0)
+        <$> onPress _ctrlUp (Vector2 0 (-1))
+        <*> onPress _ctrlDown (Vector2 0 1)
+        <*> onPress _ctrlLeft (Vector2 0 (-1))
+        <*> onPress _ctrlRight (Vector2 0 1)
+
+
+walkDirection :: SF () Vector2
+walkDirection = keyDownEvents >>> hold (Vector2 0 1)
+
+
+playerPos :: SF () Vector2
+playerPos = proc i -> do
+    goUp <- onPress _ctrlUp (Vector2 0 (-1)) -< i
+    goDown <- onPress _ctrlDown (Vector2 0 1) -< i
+    goLeft <- onPress _ctrlLeft (Vector2 (-1) 0) -< i
+    goRight <- onPress _ctrlRight (Vector2 1 0) -< i
+
+    direction <- hold $ Vector2 0 1 -< asum [goUp, goDown, goLeft, goRight]
+    pos <- notImplemented -< direction
+    returnA -< pos
 
 
 processRaylibKeyboardInputs :: IORef GameEnv -> IO GameEnv
