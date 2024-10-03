@@ -13,26 +13,24 @@ import Control.Monad (when)
 import FRP.Yampa
 import GHC.IORef (newIORef, readIORef, writeIORef)
 import Raylib.Core qualified as RL
-import Raylib.Util.Math qualified as RLM
+import Raylib.Util.Math (Vector (zero))
 
 
 run :: IO ()
 run = do
     timeRef <- yampaRaylibTimeInit
     let spriteFrame = makeSpriteFrame defRectangle 0 0
-        player = makePlayer RLM.zero Nothing spriteFrame
+        player = makePlayer zero Nothing spriteFrame
         gameEnv = makeGameEnv player defController
     gameEnvRef <- newIORef gameEnv
 
     reactimate
         -- Initiate once.
         ( do
-            playerTexture <- initGame
+            _ <- initGame
             env <- readIORef gameEnvRef
-            let updatedPlayer = (_player env){_texture = Just playerTexture}
-            let newEnv = env{_player = updatedPlayer}
-            writeIORef gameEnvRef newEnv
-            pure newEnv
+            writeIORef gameEnvRef env
+            pure env
         )
         ( \_ -> do
             dtSecs <- yampaRaylibTimeSense timeRef
@@ -43,7 +41,7 @@ run = do
             render env
             terminateAppIfExitingWindow
         )
-        update
+        simulate
 
 
 terminateAppIfExitingWindow :: (MonadIO m) => m Bool

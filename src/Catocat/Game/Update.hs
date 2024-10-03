@@ -12,20 +12,17 @@ import Raylib.Types
 import Raylib.Types qualified as RL
 
 
-update :: SF GameEnv GameEnv
-update = proc gameEnv -> do
-    t <- time -< ()
-    currentPos <- playerPos -< gameEnv
-    let player = player{_position = currentPos}
-    returnA -< gameEnv{_player = player}
-
-
-controller :: SF GameEnv Controller
-controller = proc env -> returnA -< _controller env
+simulate :: SF GameEnv GameEnv
+simulate = proc env -> do
+    pos <- playerPos -< env
+    let newPlayer = (_player env){_position = pos}
+    returnA -< env{_player = newPlayer}
 
 
 onPress :: (Controller -> Bool) -> a -> SF GameEnv (Event a)
 onPress field a = fmap (fmap (const a)) $ fmap field controller >>> edge
+  where
+    controller = arr _controller
 
 
 playerPos :: SF GameEnv Vector2
@@ -41,15 +38,17 @@ playerPos = proc env -> do
 
 
 processRaylibKeyboardInputs :: IORef GameEnv -> IO GameEnv
-processRaylibKeyboardInputs envState = do
-    env <- readIORef envState
+processRaylibKeyboardInputs envRef = do
+    env <- readIORef envRef
     isKeyWDown <- RL.isKeyDown RL.KeyW
     isKeySDown <- RL.isKeyDown RL.KeyS
     isKeyADown <- RL.isKeyDown RL.KeyA
     isKeyDDown <- RL.isKeyDown RL.KeyD
 
-    pure
-        env
-            { _controller =
-                makeController isKeyWDown isKeySDown isKeyADown isKeyDDown
-            }
+    let newEnv =
+            env
+                { _controller =
+                    makeController isKeyWDown isKeySDown isKeyADown isKeyDDown
+                }
+    writeIORef envRef newEnv
+    pure newEnv
