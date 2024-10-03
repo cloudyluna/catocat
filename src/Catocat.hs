@@ -18,12 +18,11 @@ import Raylib.Core qualified as RL
 run :: IO ()
 run = do
     timeRef <- yampaRaylibTimeInit
+    let spriteFrame = makeSpriteFrame defRectangle 0 0
+        player = makePlayer defVector2 Nothing spriteFrame
+        gameEnv = makeGameEnv player NoPressedDownKey
+    gameEnvRef <- newIORef gameEnv
 
-    gameEnvRef <-
-        newIORef $
-            makeGameEnv
-                (makePlayer defVector2 Nothing defRectangle)
-                NoPressedDownKey
     reactimate
         ( do
             playerTexture <- initGame

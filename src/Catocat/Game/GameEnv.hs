@@ -13,15 +13,27 @@ defRectangle :: Rectangle
 defRectangle = Rectangle 0.0 0.0 0.0 0.0
 
 
-data Player = Player
-    { _position :: !Vector2
-    , _texture :: !(Maybe Texture)
-    , _spriteFrame :: !Rectangle
+data SpriteFrame = SpriteFrame
+    { _bound :: !Rectangle
+    , _counter :: !Int
+    , _current :: !Int
     }
     deriving (Show, Eq)
 
 
-makePlayer :: Vector2 -> Maybe Texture -> Rectangle -> Player
+makeSpriteFrame :: Rectangle -> Int -> Int -> SpriteFrame
+makeSpriteFrame = SpriteFrame
+
+
+data Player = Player
+    { _position :: !Vector2
+    , _texture :: !(Maybe Texture)
+    , _spriteFrame :: !SpriteFrame
+    }
+    deriving (Show, Eq)
+
+
+makePlayer :: Vector2 -> Maybe Texture -> SpriteFrame -> Player
 makePlayer = Player
 
 
