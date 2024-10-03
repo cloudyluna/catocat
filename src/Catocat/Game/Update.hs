@@ -8,7 +8,6 @@ import FRP.Yampa
 import Raylib.Core qualified as RL
 import Raylib.Types
 import Raylib.Types qualified as RL
-import Raylib.Util.Lenses (_vector2'x)
 
 
 update :: SF GameEnv GameEnv
@@ -17,8 +16,9 @@ update = proc gameEnv -> do
 
     let oldX = vector2'x $ _position $ _player gameEnv
     let oldY = vector2'y $ _position $ _player gameEnv
-    let goLeft = (_player gameEnv){_position = Vector2 (oldX - 1) oldY}
-    let goRight = (_player gameEnv){_position = Vector2 (oldX + 1) oldY}
+    let player = _player gameEnv
+    let goLeft = player{_position = Vector2 (oldX - 1) oldY}
+    let goRight = player{_position = Vector2 (oldX + 1) oldY}
 
     let movementState = _controller gameEnv
     case movementState of
@@ -34,7 +34,6 @@ processRaylibKeyboardInputs envState = do
     isKeyDDown <- RL.isKeyDown RL.KeyD
     if isKeyADown || isKeyDDown
         then do
-            writeIORef envState (updatedEnv env isKeyADown isKeyDDown)
             pure (updatedEnv env isKeyADown isKeyDDown)
         else pure env{_controller = NoPressedDownKey}
   where

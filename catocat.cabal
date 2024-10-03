@@ -81,6 +81,7 @@ library
     Catocat.Wrapper.YampaRaylib
     Catocat.Game.Constant
     Catocat.Game.GameEnv
+    Catocat.Game.Message
     Catocat.Game.Initialize
     Catocat.Game.Update
     Catocat.Game.Render

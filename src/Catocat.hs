@@ -24,6 +24,7 @@ run = do
     gameEnvRef <- newIORef gameEnv
 
     reactimate
+        -- Initiate once.
         ( do
             playerTexture <- initGame
             env <- readIORef gameEnvRef
