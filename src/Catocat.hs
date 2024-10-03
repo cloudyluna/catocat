@@ -34,7 +34,7 @@ run = do
         )
         ( \_ -> do
             dtSecs <- yampaRaylibTimeSense timeRef
-            env <- processRaylibController gameEnvRef
+            env <- processRaylibKeyboardInputs gameEnvRef
             pure (dtSecs, Just env)
         )
         ( \_ env -> do

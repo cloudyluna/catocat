@@ -6,17 +6,29 @@ import Catocat.Game.GameEnv
 import Data.IORef
 import FRP.Yampa
 import Raylib.Core qualified as RL
+import Raylib.Types
 import Raylib.Types qualified as RL
+import Raylib.Util.Lenses (_vector2'x)
 
 
 update :: SF GameEnv GameEnv
 update = proc gameEnv -> do
     t <- time -< ()
-    returnA -< gameEnv
+
+    let oldX = vector2'x $ _position $ _player gameEnv
+    let oldY = vector2'y $ _position $ _player gameEnv
+    let goLeft = (_player gameEnv){_position = Vector2 (oldX - 1) oldY}
+    let goRight = (_player gameEnv){_position = Vector2 (oldX + 1) oldY}
+
+    let movementState = _controller gameEnv
+    case movementState of
+        A -> returnA -< gameEnv{_player = goLeft}
+        D -> returnA -< gameEnv{_player = goRight}
+        _other -> returnA -< gameEnv
 
 
-processRaylibController :: IORef GameEnv -> IO GameEnv
-processRaylibController envState = do
+processRaylibKeyboardInputs :: IORef GameEnv -> IO GameEnv
+processRaylibKeyboardInputs envState = do
     env <- readIORef envState
     isKeyADown <- RL.isKeyDown RL.KeyA
     isKeyDDown <- RL.isKeyDown RL.KeyD
