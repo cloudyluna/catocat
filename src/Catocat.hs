@@ -20,7 +20,7 @@ run = do
     timeRef <- yampaRaylibTimeInit
     let spriteFrame = makeSpriteFrame defRectangle 0 0
         player = makePlayer defVector2 Nothing spriteFrame
-        gameEnv = makeGameEnv player NoPressedDownKey
+        gameEnv = makeGameEnv player defController
     gameEnvRef <- newIORef gameEnv
 
     reactimate

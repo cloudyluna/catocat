@@ -38,11 +38,27 @@ makePlayer = Player
 
 
 data Direction = West | East | Stopped deriving (Show, Eq)
-data PressedDownKey = A | D | NoPressedDownKey deriving (Show, Eq)
 
 
-data GameEnv = GameEnv {_player :: !Player, _controller :: !PressedDownKey}
+data Controller = Controller
+    { _ctrlUp :: !Bool
+    , _ctrlDown :: !Bool
+    , _ctrlLeft :: !Bool
+    , _ctrlRight :: !Bool
+    }
+    deriving (Show, Eq)
 
 
-makeGameEnv :: Player -> PressedDownKey -> GameEnv
+makeController :: Bool -> Bool -> Bool -> Bool -> Controller
+makeController = Controller
+
+
+defController :: Controller
+defController = makeController False False False False
+
+
+data GameEnv = GameEnv {_player :: !Player, _controller :: !Controller}
+
+
+makeGameEnv :: Player -> Controller -> GameEnv
 makeGameEnv = GameEnv
