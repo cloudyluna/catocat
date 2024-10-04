@@ -1,5 +1,4 @@
 {-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE FieldSelectors #-}
 
 module Catocat (run) where
 
