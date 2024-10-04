@@ -7,6 +7,8 @@ module Catocat.Prelude (
     module FRP.Yampa,
     module Data.Foldable,
     module Catocat.Prelude.Internal,
+    toFloat,
+    toInt,
     fromJust,
     pass,
     notImplemented,
@@ -23,6 +25,14 @@ import FRP.Yampa
 import GHC.Stack (HasCallStack)
 import Optics hiding (pre)
 import Optics.TH (makeLenses)
+
+
+toFloat :: Int -> Float
+toFloat = fromIntegral
+
+
+toInt :: Float -> Int
+toInt = round
 
 
 -- TODO: Use "in" to put this warning in a warning category in GHC 9.10+.
