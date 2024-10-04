@@ -20,7 +20,7 @@ run :: IO ()
 run = do
     let spriteFrame = makeSpriteFrame defRectangle 0 0
         player = makePlayer zero Nothing spriteFrame
-        gameEnv = makeGameEnv player defController
+        gameEnv = makeGameEnv player defController Running
     gameEnvRef <- newIORef gameEnv
 
     reactimate
@@ -39,13 +39,14 @@ run = do
         )
         ( \_ env -> do
             render env
-            terminateAppIfExitingWindow
+            terminateAppWhenQuitEventRaised env
         )
         simulate
 
 
-terminateAppIfExitingWindow :: (MonadIO m) => m Bool
-terminateAppIfExitingWindow = do
-    isTrue <- liftIO $ (== 1) <$> RL.c'windowShouldClose
-    when isTrue $ liftIO RL.c'closeWindow
-    pure isTrue
+terminateAppWhenQuitEventRaised :: GameEnv -> IO Bool
+terminateAppWhenQuitEventRaised env = do
+    shouldQuitWindow <- (== 1) <$> RL.c'windowShouldClose
+    if shouldQuitWindow || _runningState env == Quit
+        then RL.c'closeWindow >> pure True
+        else pure False

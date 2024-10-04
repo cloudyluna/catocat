@@ -42,20 +42,28 @@ data Controller = Controller
     , _ctrlDown :: !Bool
     , _ctrlLeft :: !Bool
     , _ctrlRight :: !Bool
+    , _ctrlQuit :: !Bool
     }
     deriving (Show, Eq)
 
 
-makeController :: Bool -> Bool -> Bool -> Bool -> Controller
+makeController :: Bool -> Bool -> Bool -> Bool -> Bool -> Controller
 makeController = Controller
 
 
 defController :: Controller
-defController = makeController False False False False
+defController = makeController False False False False False
 
 
-data GameEnv = GameEnv {_player :: !Player, _controller :: !Controller}
+data GameRunningState = Running | Pause | Quit deriving (Show, Eq)
 
 
-makeGameEnv :: Player -> Controller -> GameEnv
+data GameEnv = GameEnv
+    { _player :: !Player
+    , _controller :: !Controller
+    , _runningState :: !GameRunningState
+    }
+
+
+makeGameEnv :: Player -> Controller -> GameRunningState -> GameEnv
 makeGameEnv = GameEnv
