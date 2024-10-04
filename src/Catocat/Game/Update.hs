@@ -6,8 +6,6 @@ import Catocat.Game.Constant (playerSpeed)
 import Catocat.Game.GameEnv
 import Catocat.Prelude
 import Data.Foldable
-import Data.IORef
-import FRP.Yampa
 import FRP.Yampa.Conditional (provided)
 import Raylib.Core qualified as RL
 import Raylib.Types
@@ -17,21 +15,21 @@ import Raylib.Util.Math (Vector (zero))
 
 simulate :: SF GameEnv GameEnv
 simulate = proc env -> do
-    position <- getPlayerPosition -< env
+    pos <- getPlayerPosition -< env
     quitEvent <- getExtraQuitEvent -< env
-    let updatedPlayer = (_player env){_position = position}
+    let updatedPlayer = (env ^. player) & position .~ pos
     returnA
         -<
             env
-                { _player = updatedPlayer
-                , _runningState =
-                    if quitEvent then Quit else _runningState env
-                }
+                & player
+                .~ updatedPlayer
+                & runningState
+                .~ if quitEvent then Quit else env ^. runningState
 
 
 getExtraQuitEvent :: SF GameEnv Bool
 getExtraQuitEvent = proc env -> do
-    quitEvent <- onPress _ctrlQuit True -< env
+    quitEvent <- onPress (view ctrlQuit) True -< env
     returnA -< isRaised quitEvent
   where
     isRaised e = isEvent e && fromEvent e
@@ -39,10 +37,10 @@ getExtraQuitEvent = proc env -> do
 
 getPlayerPosition :: SF GameEnv Vector2
 getPlayerPosition = proc env -> do
-    goUp <- onPress _ctrlUp (Vector2 0 (-playerSpeed)) -< env
-    goDown <- onPress _ctrlDown (Vector2 0 playerSpeed) -< env
-    goLeft <- onPress _ctrlLeft (Vector2 (-playerSpeed) 0) -< env
-    goRight <- onPress _ctrlRight (Vector2 playerSpeed 0) -< env
+    goUp <- onPress (view ctrlUp) (Vector2 0 (-playerSpeed)) -< env
+    goDown <- onPress (view ctrlDown) (Vector2 0 playerSpeed) -< env
+    goLeft <- onPress (view ctrlLeft) (Vector2 (-playerSpeed) 0) -< env
+    goRight <- onPress (view ctrlRight) (Vector2 playerSpeed 0) -< env
 
     let walkEvent = asum [goUp, goDown, goLeft, goRight]
     -- TODO: Set back to zero when NoEvent is encountered instead of continuing
@@ -56,9 +54,9 @@ getPlayerPosition = proc env -> do
 
 -- TODO: I don't understand this. Try rewrite it for clarity.
 onPress :: (Controller -> Bool) -> a -> SF GameEnv (Event a)
-onPress field a = fmap (fmap (const a)) $ fmap field controller >>> edge
+onPress field a = fmap (fmap (const a)) $ fmap field liftedController >>> edge
   where
-    controller = arr _controller
+    liftedController = arr (view controller)
 
 
 processRaylibKeyboardInputs :: IORef GameEnv -> IO GameEnv

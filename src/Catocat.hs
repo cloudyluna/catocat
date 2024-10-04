@@ -8,19 +8,15 @@ import Catocat.Game.Initialize
 import Catocat.Game.Render
 import Catocat.Game.Update
 import Catocat.Prelude
-import Catocat.Wrapper.YampaRaylib (yampaRaylibTimeInit, yampaRaylibTimeSense)
-import Control.Monad (when)
-import FRP.Yampa
-import GHC.IORef (newIORef, readIORef, writeIORef)
 import Raylib.Core qualified as RL
 import Raylib.Util.Math (Vector (zero))
 
 
 run :: IO ()
 run = do
-    let spriteFrame = makeSpriteFrame defRectangle 0 0
-        player = makePlayer zero Nothing spriteFrame
-        gameEnv = makeGameEnv player defController Running
+    let initialSpriteFrame = makeSpriteFrame defRectangle 0 0
+        initialPlayer = makePlayer zero Nothing initialSpriteFrame
+        gameEnv = makeGameEnv initialPlayer defController Running
     gameEnvRef <- newIORef gameEnv
 
     reactimate
@@ -28,7 +24,7 @@ run = do
         ( do
             playerTexture <- initGame
             env <- readIORef gameEnvRef
-            let newEnv = env{_player = (_player env){_texture = Just playerTexture}}
+            let newEnv = env & (player % texture) ?~ playerTexture
             writeIORef gameEnvRef newEnv
             pure newEnv
         )
@@ -47,6 +43,6 @@ run = do
 terminateAppWhenQuitEventRaised :: GameEnv -> IO Bool
 terminateAppWhenQuitEventRaised env = do
     shouldQuitWindow <- (== 1) <$> RL.c'windowShouldClose
-    if shouldQuitWindow || _runningState env == Quit
+    if shouldQuitWindow || env ^. runningState == Quit
         then RL.c'closeWindow >> pure True
         else pure False

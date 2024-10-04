@@ -1,7 +1,8 @@
-{-# LANGUAGE FieldSelectors #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Catocat.Game.GameEnv where
 
+import Catocat.Prelude (makeLenses)
 import Raylib.Types
 
 
@@ -17,6 +18,9 @@ data SpriteFrame = SpriteFrame
     deriving (Show, Eq)
 
 
+makeLenses ''SpriteFrame
+
+
 makeSpriteFrame :: Rectangle -> Int -> Int -> SpriteFrame
 makeSpriteFrame = SpriteFrame
 
@@ -27,6 +31,9 @@ data Player = Player
     , _spriteFrame :: !SpriteFrame
     }
     deriving (Show, Eq)
+
+
+makeLenses ''Player
 
 
 makePlayer :: Vector2 -> Maybe Texture -> SpriteFrame -> Player
@@ -47,6 +54,9 @@ data Controller = Controller
     deriving (Show, Eq)
 
 
+makeLenses ''Controller
+
+
 makeController :: Bool -> Bool -> Bool -> Bool -> Bool -> Controller
 makeController = Controller
 
@@ -63,6 +73,9 @@ data GameEnv = GameEnv
     , _controller :: !Controller
     , _runningState :: !GameRunningState
     }
+
+
+makeLenses ''GameEnv
 
 
 makeGameEnv :: Player -> Controller -> GameRunningState -> GameEnv
