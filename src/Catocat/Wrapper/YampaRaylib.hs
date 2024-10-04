@@ -1,8 +1,8 @@
 module Catocat.Wrapper.YampaRaylib where
 
+import Catocat.Prelude
+import Catocat.Prelude.Engine
 import FRP.Yampa (DTime)
-import GHC.IORef (IORef, newIORef, readIORef, writeIORef)
-import Raylib.Core (getTime)
 
 
 type TimeRef = IORef Int

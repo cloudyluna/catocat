@@ -1,5 +1,6 @@
 module Catocat.Game.Initialize where
 
+import Catocat.Prelude
 import Catocat.Prelude.Engine (
     Texture,
     c'initWindow,

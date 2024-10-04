@@ -2,7 +2,7 @@
 
 module Catocat.Game.GameEnv where
 
-import Catocat.Prelude (makeLenses)
+import Catocat.Prelude
 import Catocat.Prelude.Engine (
     Rectangle,
     Texture,

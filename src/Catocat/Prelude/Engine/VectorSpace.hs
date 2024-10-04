@@ -4,6 +4,8 @@
 
 module Catocat.Prelude.Engine.VectorSpace where
 
+import Catocat.Prelude.Internal
+
 import Data.VectorSpace (
     VectorSpace (dot, negateVector, zeroVector, (*^), (^+^), (^-^)),
  )

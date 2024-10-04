@@ -45,6 +45,7 @@ extra-doc-files: CHANGELOG.md
 common common-all
   default-language: GHC2021
   default-extensions:
+    NoImplicitPrelude
     DataKinds
     DuplicateRecordFields
     ImportQualifiedPost
@@ -78,6 +79,7 @@ library
   exposed-modules:
     Catocat
     Catocat.Prelude
+    Catocat.Prelude.Internal
     Catocat.Prelude.Engine
     Catocat.Prelude.Engine.VectorSpace
     Catocat.Prelude.Engine.Lenses

@@ -6,12 +6,14 @@ module Catocat.Prelude (
     module Data.IORef,
     module FRP.Yampa,
     module Data.Foldable,
+    module Catocat.Prelude.Internal,
     fromJust,
     pass,
     notImplemented,
 ) where
 
 import Catocat.Prelude.Engine.VectorSpace ()
+import Catocat.Prelude.Internal
 import Control.Monad.IO.Class
 import Data.Foldable
 import Data.Function ((&))

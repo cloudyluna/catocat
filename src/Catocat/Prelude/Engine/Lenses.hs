@@ -8,6 +8,7 @@ module Catocat.Prelude.Engine.Lenses (
     txt'width,
 ) where
 
+import Catocat.Prelude.Internal
 import Optics.Lens (Lens, lensVL)
 import Raylib.Types.Core
 import Raylib.Types.Core.Textures (Texture)

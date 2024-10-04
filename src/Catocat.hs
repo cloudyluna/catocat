@@ -1,6 +1,6 @@
 {-# LANGUAGE DerivingStrategies #-}
 
-module Catocat (run) where
+module Catocat (IO, run) where
 
 import Catocat.Game.GameEnv (
     GameEnv,
@@ -19,16 +19,7 @@ import Catocat.Game.Update (
     processRaylibKeyboardInputs,
     simulate,
  )
-import Catocat.Prelude (
-    newIORef,
-    reactimate,
-    readIORef,
-    writeIORef,
-    (%),
-    (&),
-    (?~),
-    (^.),
- )
+import Catocat.Prelude
 import Catocat.Prelude.Engine (
     Vector (zero),
     c'closeWindow,

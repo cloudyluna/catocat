@@ -1,5 +1,7 @@
 module Catocat.Game.Constant where
 
+import Catocat.Prelude
+
 
 windowWidth :: (Num a) => a
 windowWidth = 800
