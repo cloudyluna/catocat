@@ -36,6 +36,7 @@ makePlayer = Player
 data Direction = West | East | Stopped deriving (Show, Eq)
 
 
+-- | High-level abstraction for device input.
 data Controller = Controller
     { _ctrlUp :: !Bool
     , _ctrlDown :: !Bool

@@ -18,7 +18,6 @@ import Raylib.Util.Math (Vector (zero))
 
 run :: IO ()
 run = do
-    timeRef <- yampaRaylibTimeInit
     let spriteFrame = makeSpriteFrame defRectangle 0 0
         player = makePlayer zero Nothing spriteFrame
         gameEnv = makeGameEnv player defController
@@ -35,7 +34,6 @@ run = do
         )
         ( \_ -> do
             dtSecs <- realToFrac <$> RL.getFrameTime
-            -- dtSecs <- yampaRaylibTimeSense timeRef
             env <- processRaylibKeyboardInputs gameEnvRef
             pure (dtSecs, Just env)
         )
