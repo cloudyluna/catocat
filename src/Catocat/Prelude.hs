@@ -5,13 +5,15 @@ module Catocat.Prelude (
     module Optics.TH,
     module Data.IORef,
     module FRP.Yampa,
+    module Data.Foldable,
     fromJust,
     pass,
     notImplemented,
 ) where
 
-import Catocat.Prelude.VectorSpace ()
+import Catocat.Prelude.Engine.VectorSpace ()
 import Control.Monad.IO.Class
+import Data.Foldable
 import Data.Function ((&))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.Maybe qualified

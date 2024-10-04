@@ -1,19 +1,21 @@
 module Catocat.Game.Initialize where
 
-import Catocat.Game.Constant
+import Catocat.Prelude.Engine (
+    Texture,
+    c'initWindow,
+    loadTexture,
+    setTargetFPS,
+ )
 import Foreign.C (newCString)
-import Raylib.Core qualified as RL
-import Raylib.Core.Textures qualified as RL
-import Raylib.Types
 
 
 -- | Initialise rendering system.
 initGame :: IO Texture
 initGame = do
-    newCString "Cat O Cat" >>= RL.c'initWindow 600 480
-    RL.setTargetFPS 60
+    newCString "Cat O Cat" >>= c'initWindow 600 480
+    setTargetFPS 60
     preload
 
 
 preload :: IO Texture
-preload = RL.loadTexture "assets/sprites/player_spritesheet.png"
+preload = loadTexture "assets/sprites/player_spritesheet.png"

@@ -3,11 +3,11 @@
 module Catocat.Game.GameEnv where
 
 import Catocat.Prelude (makeLenses)
-import Raylib.Types
-
-
-defRectangle :: Rectangle
-defRectangle = Rectangle 0.0 0.0 0.0 0.0
+import Catocat.Prelude.Engine (
+    Rectangle,
+    Texture,
+    Vector2,
+ )
 
 
 data SpriteFrame = SpriteFrame

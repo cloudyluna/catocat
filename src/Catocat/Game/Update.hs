@@ -5,12 +5,8 @@ module Catocat.Game.Update where
 import Catocat.Game.Constant (playerSpeed)
 import Catocat.Game.GameEnv
 import Catocat.Prelude
-import Data.Foldable
+import Catocat.Prelude.Engine
 import FRP.Yampa.Conditional (provided)
-import Raylib.Core qualified as RL
-import Raylib.Types
-import Raylib.Types qualified as RL
-import Raylib.Util.Math (Vector (zero))
 
 
 simulate :: SF GameEnv GameEnv
@@ -52,7 +48,7 @@ getPlayerPosition = proc env -> do
     returnA -< pos
 
 
--- TODO: I don't understand this. Try rewrite it for clarity.
+-- TODO: I don't understand this. Try rewriting for clarity.
 onPress :: (Controller -> Bool) -> a -> SF GameEnv (Event a)
 onPress field a = fmap (fmap (const a)) $ fmap field liftedController >>> edge
   where
@@ -61,22 +57,22 @@ onPress field a = fmap (fmap (const a)) $ fmap field liftedController >>> edge
 
 processRaylibKeyboardInputs :: IORef GameEnv -> IO GameEnv
 processRaylibKeyboardInputs envRef = do
-    isKeyWDown <- RL.isKeyDown RL.KeyW
-    isKeySDown <- RL.isKeyDown RL.KeyS
-    isKeyADown <- RL.isKeyDown RL.KeyA
-    isKeyDDown <- RL.isKeyDown RL.KeyD
-    isKeyQDown <- RL.isKeyDown RL.KeyQ
+    isKeyWDown <- isKeyDown KeyW
+    isKeySDown <- isKeyDown KeyS
+    isKeyADown <- isKeyDown KeyA
+    isKeyDDown <- isKeyDown KeyD
+    isKeyQDown <- isKeyDown KeyQ
 
     env <- readIORef envRef
     let newEnv =
             env
-                { _controller =
-                    makeController
-                        isKeyWDown
-                        isKeySDown
-                        isKeyADown
-                        isKeyDDown
-                        isKeyQDown
-                }
+                & controller
+                .~ makeController
+                    isKeyWDown
+                    isKeySDown
+                    isKeyADown
+                    isKeyDDown
+                    isKeyQDown
+
     writeIORef envRef newEnv
     pure newEnv

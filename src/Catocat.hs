@@ -2,13 +2,40 @@
 
 module Catocat (run) where
 
-import Catocat.Game.GameEnv
-import Catocat.Game.Initialize
-import Catocat.Game.Render
-import Catocat.Game.Update
-import Catocat.Prelude
-import Raylib.Core qualified as RL
-import Raylib.Util.Math (Vector (zero))
+import Catocat.Game.GameEnv (
+    GameEnv,
+    GameRunningState (Quit, Running),
+    defController,
+    makeGameEnv,
+    makePlayer,
+    makeSpriteFrame,
+    player,
+    runningState,
+    texture,
+ )
+import Catocat.Game.Initialize (initGame)
+import Catocat.Game.Render (render)
+import Catocat.Game.Update (
+    processRaylibKeyboardInputs,
+    simulate,
+ )
+import Catocat.Prelude (
+    newIORef,
+    reactimate,
+    readIORef,
+    writeIORef,
+    (%),
+    (&),
+    (?~),
+    (^.),
+ )
+import Catocat.Prelude.Engine (
+    Vector (zero),
+    c'closeWindow,
+    c'windowShouldClose,
+    defRectangle,
+    getDeltaTime,
+ )
 
 
 run :: IO ()
@@ -28,7 +55,7 @@ run = do
             pure newEnv
         )
         ( \_ -> do
-            dtSecs <- realToFrac <$> RL.getFrameTime
+            dtSecs <- realToFrac <$> getDeltaTime
             env <- processRaylibKeyboardInputs gameEnvRef
             pure (dtSecs, Just env)
         )
@@ -41,7 +68,7 @@ run = do
 
 terminateAppWhenQuitEventRaised :: GameEnv -> IO Bool
 terminateAppWhenQuitEventRaised env = do
-    shouldQuitWindow <- (== 1) <$> RL.c'windowShouldClose
+    shouldQuitWindow <- (== 1) <$> c'windowShouldClose
     if shouldQuitWindow || env ^. runningState == Quit
-        then RL.c'closeWindow >> pure True
+        then c'closeWindow >> pure True
         else pure False

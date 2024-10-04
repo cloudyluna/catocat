@@ -2,7 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Catocat.Prelude.VectorSpace where
+module Catocat.Prelude.Engine.VectorSpace where
 
 import Data.VectorSpace (
     VectorSpace (dot, negateVector, zeroVector, (*^), (^+^), (^-^)),
