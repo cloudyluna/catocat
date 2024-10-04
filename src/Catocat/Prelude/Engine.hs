@@ -19,7 +19,7 @@ import Raylib.Util.Colors
 import Raylib.Util.Math hiding (constant)
 
 import Catocat.Prelude.Engine.Lenses
-import Catocat.Prelude.Internal
+import Catocat.Prelude.Internal (Float, IO)
 
 
 defRectangle :: Rectangle
