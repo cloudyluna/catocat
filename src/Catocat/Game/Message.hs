@@ -1,8 +1,9 @@
 module Catocat.Game.Message where
 
-import Raylib.Types
-
-import Catocat.Game.GameEnv
+import Catocat.Prelude
 
 
-data Message = Ignore | QuitGame deriving (Show, Eq)
+data Scene = Menu | World deriving (Show, Eq)
+
+
+data Message = Ignore | SwitchScene Scene | QuitGame deriving (Show, Eq)

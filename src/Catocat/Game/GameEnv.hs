@@ -1,12 +1,13 @@
-{-# LANGUAGE FieldSelectors #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Catocat.Game.GameEnv where
 
-import Raylib.Types
-
-
-defRectangle :: Rectangle
-defRectangle = Rectangle 0.0 0.0 0.0 0.0
+import Catocat.Prelude
+import Catocat.Prelude.Engine (
+    Rectangle,
+    Texture,
+    Vector2,
+ )
 
 
 data SpriteFrame = SpriteFrame
@@ -15,6 +16,9 @@ data SpriteFrame = SpriteFrame
     , _current :: !Int
     }
     deriving (Show, Eq)
+
+
+makeLenses ''SpriteFrame
 
 
 makeSpriteFrame :: Rectangle -> Int -> Int -> SpriteFrame
@@ -29,11 +33,14 @@ data Player = Player
     deriving (Show, Eq)
 
 
+makeLenses ''Player
+
+
 makePlayer :: Vector2 -> Maybe Texture -> SpriteFrame -> Player
 makePlayer = Player
 
 
-data Direction = West | East | Stopped deriving (Show, Eq)
+data Direction = North | East | South | West | Stopped deriving (Show, Eq)
 
 
 -- | High-level abstraction for device input.
@@ -42,20 +49,39 @@ data Controller = Controller
     , _ctrlDown :: !Bool
     , _ctrlLeft :: !Bool
     , _ctrlRight :: !Bool
+    , _ctrlQuit :: !Bool
     }
     deriving (Show, Eq)
 
 
-makeController :: Bool -> Bool -> Bool -> Bool -> Controller
+makeLenses ''Controller
+
+
+makeController :: Bool -> Bool -> Bool -> Bool -> Bool -> Controller
 makeController = Controller
 
 
 defController :: Controller
-defController = makeController False False False False
+defController = makeController False False False False False
 
 
-data GameEnv = GameEnv {_player :: !Player, _controller :: !Controller}
+data GameOverStatus = Won | Lost deriving (Show, Eq)
 
 
-makeGameEnv :: Player -> Controller -> GameEnv
-makeGameEnv = GameEnv
+data GameRunningState = Running | Pause | GameOver GameOverStatus | Quit
+    deriving (Show, Eq)
+
+
+data GameState = GameState
+    { _player :: !Player
+    , _controller :: !Controller
+    , _runningState :: !GameRunningState
+    }
+    deriving (Show, Eq)
+
+
+makeLenses ''GameState
+
+
+makeGameState :: Player -> Controller -> GameRunningState -> GameState
+makeGameState = GameState

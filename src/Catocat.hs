@@ -1,51 +1,65 @@
 {-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE FieldSelectors #-}
 
-module Catocat (run) where
+module Catocat (IO, run) where
 
-import Catocat.Game.GameEnv
-import Catocat.Game.Initialize
-import Catocat.Game.Render
-import Catocat.Game.Update
+import Catocat.Game.GameEnv (
+    GameRunningState (Quit, Running),
+    GameState,
+    defController,
+    makeGameState,
+    makePlayer,
+    makeSpriteFrame,
+    player,
+    runningState,
+    texture,
+ )
+import Catocat.Game.Initialize (initGame)
+import Catocat.Game.Render (render)
+import Catocat.Game.Update (
+    processInput,
+    simulate,
+ )
 import Catocat.Prelude
-import Catocat.Wrapper.YampaRaylib (yampaRaylibTimeInit, yampaRaylibTimeSense)
-import Control.Monad (when)
-import FRP.Yampa
-import GHC.IORef (newIORef, readIORef, writeIORef)
-import Raylib.Core qualified as RL
-import Raylib.Util.Math (Vector (zero))
+import Catocat.Prelude.Engine (
+    Vector (zero),
+    c'closeWindow,
+    c'windowShouldClose,
+    defRectangle,
+    getDeltaTime,
+ )
 
 
 run :: IO ()
 run = do
-    let spriteFrame = makeSpriteFrame defRectangle 0 0
-        player = makePlayer zero Nothing spriteFrame
-        gameEnv = makeGameEnv player defController
-    gameEnvRef <- newIORef gameEnv
+    let initialSpriteFrame = makeSpriteFrame defRectangle 0 0
+        initialPlayer = makePlayer zero Nothing initialSpriteFrame
+        gameState = makeGameState initialPlayer defController Running
+    gameStateRef <- newIORef gameState
 
     reactimate
         -- Initiate once.
         ( do
             playerTexture <- initGame
-            env <- readIORef gameEnvRef
-            let newEnv = env{_player = (_player env){_texture = Just playerTexture}}
-            writeIORef gameEnvRef newEnv
+            state <- readIORef gameStateRef
+            let newEnv = state & (player % texture) ?~ playerTexture
+            writeIORef gameStateRef newEnv
             pure newEnv
         )
         ( \_ -> do
-            dtSecs <- realToFrac <$> RL.getFrameTime
-            env <- processRaylibKeyboardInputs gameEnvRef
-            pure (dtSecs, Just env)
+            dt <- realToFrac <$> getDeltaTime
+            state <- processInput gameStateRef
+            pure (dt, Just state)
         )
-        ( \_ env -> do
-            render env
-            terminateAppIfExitingWindow
+        ( \_ state -> do
+            render state
+            terminateIfQuiEventtRaised state
         )
         simulate
 
+    c'closeWindow
 
-terminateAppIfExitingWindow :: (MonadIO m) => m Bool
-terminateAppIfExitingWindow = do
-    isTrue <- liftIO $ (== 1) <$> RL.c'windowShouldClose
-    when isTrue $ liftIO RL.c'closeWindow
-    pure isTrue
+
+terminateIfQuiEventtRaised :: GameState -> IO Bool
+terminateIfQuiEventtRaised state = do
+    shouldQuitWindow <- (== 1) <$> c'windowShouldClose
+    pure $ shouldQuitWindow || state ^. runningState == Quit

@@ -2,27 +2,21 @@ module Catocat.Game.Render where
 
 import Catocat.Game.GameEnv
 import Catocat.Prelude
-import Data.Maybe (fromJust)
-import Raylib.Core qualified as RL
-import Raylib.Core.Text qualified as RL
-import Raylib.Core.Textures qualified as RL
-import Raylib.Types
-import Raylib.Util.Colors qualified as RL
-import Raylib.Util.Lenses (_vector2'x)
+import Catocat.Prelude.Engine
 
 
-render :: GameEnv -> IO ()
-render gameEnv = liftIO $ do
-    RL.beginDrawing
+render :: GameState -> IO ()
+render gameState = liftIO $ do
+    beginDrawing
 
-    RL.clearBackground RL.rayWhite
+    clearBackground rayWhite
 
-    let texture = fromJust . _texture . _player $ gameEnv
-    let pos = _position . _player $ gameEnv
-    let x = vector2'x pos
-    let y = vector2'y pos
-    RL.drawTextureRec texture (Rectangle 0 0 64 64) (Vector2 x y) RL.rayWhite
+    let pTexture = fromJust $ gameState ^. player % texture
+    let pos = gameState ^. player % position
+    let x = pos ^. v2'x
+    let y = pos ^. v2'y
+    drawTextureRec pTexture (Rectangle 0 0 64 64) (Vector2 x y) rayWhite
 
-    RL.drawText "YES" 250 250 50 RL.black
+    drawText "YES" 250 250 50 black
 
-    RL.endDrawing
+    endDrawing
