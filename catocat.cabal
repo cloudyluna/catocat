@@ -83,7 +83,6 @@ library
     Catocat.Prelude.Engine
     Catocat.Prelude.Engine.VectorSpace
     Catocat.Prelude.Engine.Lenses
-    Catocat.Wrapper.YampaRaylib
     Catocat.Game.Constant
     Catocat.Game.GameEnv
     Catocat.Game.Message
