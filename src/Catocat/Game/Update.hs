@@ -12,7 +12,7 @@ import FRP.Yampa.Conditional (provided)
 simulate :: SF GameEnv GameEnv
 simulate = proc env -> do
     pos <- getPlayerPosition -< env
-    quitEvent <- getExtraQuitEvent -< env
+    quitRaised <- getExtraQuitEvent -< env
     let updatedPlayer = (env ^. player) & position .~ pos
     returnA
         -<
@@ -20,7 +20,7 @@ simulate = proc env -> do
                 & player
                 .~ updatedPlayer
                 & runningState
-                .~ if quitEvent then Quit else env ^. runningState
+                .~ if quitRaised then Quit else env ^. runningState
 
 
 getExtraQuitEvent :: SF GameEnv Bool
