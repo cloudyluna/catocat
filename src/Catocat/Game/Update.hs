@@ -6,7 +6,6 @@ import Catocat.Game.Constant (playerSpeed)
 import Catocat.Game.GameEnv
 import Catocat.Prelude
 import Catocat.Prelude.Engine
-import FRP.Yampa.Conditional (provided)
 
 
 simulate :: SF GameEnv GameEnv
@@ -39,11 +38,8 @@ getPlayerPosition = proc env -> do
     goRight <- onPress (view ctrlRight) (Vector2 playerSpeed 0) -< env
 
     let walkEvent = asum [goUp, goDown, goLeft, goRight]
-    -- TODO: Set back to zero when NoEvent is encountered instead of continuing
-    -- with last held value.
-    filteredEvent <-
-        provided isEvent identity (constant $ Event zero) -< walkEvent
-    direction <- hold zero -< filteredEvent
+    let q = rMerge goUp goDown
+    direction <- hold zero -< q
     pos <- integral -< direction
     returnA -< pos
 
