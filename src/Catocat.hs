@@ -52,14 +52,14 @@ run = do
         )
         ( \_ env -> do
             render env
-            terminateAppWhenQuitEventRaised env
+            terminateIfQuiEventtRaised env
         )
         simulate
 
+    c'closeWindow
 
-terminateAppWhenQuitEventRaised :: GameEnv -> IO Bool
-terminateAppWhenQuitEventRaised env = do
+
+terminateIfQuiEventtRaised :: GameEnv -> IO Bool
+terminateIfQuiEventtRaised env = do
     shouldQuitWindow <- (== 1) <$> c'windowShouldClose
-    if shouldQuitWindow || env ^. runningState == Quit
-        then c'closeWindow >> pure True
-        else pure False
+    pure $ shouldQuitWindow || env ^. runningState == Quit
