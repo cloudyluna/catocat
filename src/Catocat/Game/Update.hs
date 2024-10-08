@@ -50,8 +50,12 @@ onPress field a = fmap (fmap (const a)) $ fmap field liftedController >>> edge
     liftedController = arr (view controller)
 
 
-processRaylibKeyboardInputs :: IORef GameEnv -> IO GameEnv
-processRaylibKeyboardInputs envRef = do
+gameOver :: GameOverStatus -> GameEnv -> SF a GameEnv
+gameOver status env = constant $ env & runningState .~ GameOver status
+
+
+parseInput :: IORef GameEnv -> IO GameEnv
+parseInput envRef = do
     isKeyWDown <- isKeyDown KeyW
     isKeySDown <- isKeyDown KeyS
     isKeyADown <- isKeyDown KeyA

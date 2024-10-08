@@ -16,7 +16,7 @@ import Catocat.Game.GameEnv (
 import Catocat.Game.Initialize (initGame)
 import Catocat.Game.Render (render)
 import Catocat.Game.Update (
-    processRaylibKeyboardInputs,
+    parseInput,
     simulate,
  )
 import Catocat.Prelude
@@ -47,7 +47,7 @@ run = do
         )
         ( \_ -> do
             dtSecs <- realToFrac <$> getDeltaTime
-            env <- processRaylibKeyboardInputs gameEnvRef
+            env <- parseInput gameEnvRef
             pure (dtSecs, Just env)
         )
         ( \_ env -> do

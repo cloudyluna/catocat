@@ -40,7 +40,7 @@ makePlayer :: Vector2 -> Maybe Texture -> SpriteFrame -> Player
 makePlayer = Player
 
 
-data Direction = West | East | Stopped deriving (Show, Eq)
+data Direction = North | East | South | West | Stopped deriving (Show, Eq)
 
 
 -- | High-level abstraction for device input.
@@ -66,7 +66,11 @@ defController :: Controller
 defController = makeController False False False False True False
 
 
-data GameRunningState = Running | Pause | Quit deriving (Show, Eq)
+data GameOverStatus = Won | Lost deriving (Show, Eq)
+
+
+data GameRunningState = Running | Pause | GameOver GameOverStatus | Quit
+    deriving (Show, Eq)
 
 
 data GameEnv = GameEnv

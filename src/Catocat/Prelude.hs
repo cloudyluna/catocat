@@ -60,7 +60,7 @@ doUntil ::
         (b, Event c)
 doUntil
     behavior
-    event = behavior &&& event
+    e = behavior &&& e
 
 
 toFloat :: Int -> Float
