@@ -18,6 +18,7 @@ module Catocat.Prelude (
     swont,
     switchSwont,
     foreverSwont,
+    doUntil,
 ) where
 
 import Catocat.Prelude.Engine.VectorSpace ()
@@ -49,6 +50,17 @@ switchSwont sw end = runCont sw.unSwont end
 
 foreverSwont :: Swont i o e -> SF i o
 foreverSwont sw = switchSwont (forever sw) $ error "impossible"
+
+
+doUntil ::
+    SF a b ->
+    SF a (Event c) ->
+    SF
+        a
+        (b, Event c)
+doUntil
+    behavior
+    event = behavior &&& event
 
 
 toFloat :: Int -> Float

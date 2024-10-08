@@ -49,6 +49,7 @@ data Controller = Controller
     , _ctrlDown :: !Bool
     , _ctrlLeft :: !Bool
     , _ctrlRight :: !Bool
+    , _ctrlRightUp :: !Bool
     , _ctrlQuit :: !Bool
     }
     deriving (Show, Eq)
@@ -57,12 +58,12 @@ data Controller = Controller
 makeLenses ''Controller
 
 
-makeController :: Bool -> Bool -> Bool -> Bool -> Bool -> Controller
+makeController :: Bool -> Bool -> Bool -> Bool -> Bool -> Bool -> Controller
 makeController = Controller
 
 
 defController :: Controller
-defController = makeController False False False False False
+defController = makeController False False False False True False
 
 
 data GameRunningState = Running | Pause | Quit deriving (Show, Eq)

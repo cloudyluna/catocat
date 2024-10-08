@@ -37,9 +37,8 @@ getPlayerPosition = proc env -> do
     goLeft <- onPress (view ctrlLeft) (Vector2 (-playerSpeed) 0) -< env
     goRight <- onPress (view ctrlRight) (Vector2 playerSpeed 0) -< env
 
-    let walkEvent = asum [goUp, goDown, goLeft, goRight]
-    let q = rMerge goUp goDown
-    direction <- hold zero -< q
+    let walk = asum [goUp, goDown, goLeft, goRight]
+    direction <- hold zero -< walk
     pos <- integral -< direction
     returnA -< pos
 
@@ -57,6 +56,7 @@ processRaylibKeyboardInputs envRef = do
     isKeySDown <- isKeyDown KeyS
     isKeyADown <- isKeyDown KeyA
     isKeyDDown <- isKeyDown KeyD
+    isKeyDUp <- isKeyUp KeyD
     isKeyQDown <- isKeyDown KeyQ
 
     env <- readIORef envRef
@@ -68,6 +68,7 @@ processRaylibKeyboardInputs envRef = do
                     isKeySDown
                     isKeyADown
                     isKeyDDown
+                    isKeyDUp
                     isKeyQDown
 
     writeIORef envRef newEnv
