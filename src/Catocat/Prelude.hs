@@ -1,3 +1,5 @@
+{-# LANGUAGE DerivingStrategies #-}
+
 module Catocat.Prelude (
     module Control.Monad.IO.Class,
     module Data.Function,
@@ -12,10 +14,16 @@ module Catocat.Prelude (
     fromJust,
     pass,
     notImplemented,
+    Swont (unSwont),
+    swont,
+    switchSwont,
+    foreverSwont,
 ) where
 
 import Catocat.Prelude.Engine.VectorSpace ()
 import Catocat.Prelude.Internal
+import Control.Monad (forever)
+import Control.Monad.Cont (Cont, cont, runCont)
 import Control.Monad.IO.Class
 import Data.Foldable
 import Data.Function ((&))
@@ -25,6 +33,22 @@ import FRP.Yampa
 import GHC.Stack (HasCallStack)
 import Optics hiding (pre)
 import Optics.TH (makeLenses)
+
+
+newtype Swont i o a = Swont {unSwont :: Cont (SF i o) a}
+    deriving newtype (Functor, Applicative, Monad)
+
+
+swont :: SF i (o, Event e) -> Swont i o e
+swont = Swont . cont . switch
+
+
+switchSwont :: Swont i o e -> (e -> SF i o) -> SF i o
+switchSwont sw end = runCont sw.unSwont end
+
+
+foreverSwont :: Swont i o e -> SF i o
+foreverSwont sw = switchSwont (forever sw) $ error "impossible"
 
 
 toFloat :: Int -> Float
