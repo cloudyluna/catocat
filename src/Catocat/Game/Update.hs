@@ -28,7 +28,7 @@ getPlayerPosition = proc env -> do
 
     let walk = asum [goUp, goDown, goLeft, goRight]
 
-    direction <- hold zero -< walk
+    direction <- hold zero -< trace (show walk) walk
     pos <- integral -< direction
     returnA -< pos
 
@@ -37,8 +37,8 @@ onPress :: (Controller -> Bool) -> Vector2 -> SF GameEnv (Event Vector2)
 onPress field v2 = asEvent <$> onEdge
   where
     asEvent = fmap $ const v2
-    onEdge = controllerField >>> edge
-    controllerField = field <$> liftedController
+    onEdge = controllerFieldSignal >>> edge
+    controllerFieldSignal = field <$> liftedController
     liftedController = arr $ view controller
 
 

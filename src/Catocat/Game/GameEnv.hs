@@ -78,6 +78,7 @@ data GameEnv = GameEnv
     , _controller :: !Controller
     , _runningState :: !GameRunningState
     }
+    deriving (Show, Eq)
 
 
 makeLenses ''GameEnv

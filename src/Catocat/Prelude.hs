@@ -19,6 +19,7 @@ module Catocat.Prelude (
     switchSwont,
     foreverSwont,
     doUntil,
+    trace,
 ) where
 
 import Catocat.Prelude.Engine.VectorSpace ()
@@ -30,6 +31,7 @@ import Data.Foldable
 import Data.Function ((&))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.Maybe qualified
+import Debug.Trace qualified
 import FRP.Yampa
 import GHC.Stack (HasCallStack)
 import Optics hiding (pre)
@@ -80,6 +82,11 @@ fromJust = Data.Maybe.fromJust
 {-# WARNING notImplemented "'notImplemented' remains in code" #-}
 notImplemented :: a
 notImplemented = error "Not implemented"
+
+
+{-# WARNING trace "'trace' remains in code" #-}
+trace :: String -> a -> a
+trace = Debug.Trace.trace
 
 
 pass :: (MonadIO m) => m ()
