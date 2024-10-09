@@ -15,11 +15,6 @@ module Catocat.Prelude (
     fromJust,
     pass,
     notImplemented,
-    Swont (unSwont),
-    swont,
-    switchSwont,
-    foreverSwont,
-    doUntil,
     trace,
     traceShowId,
 ) where
@@ -27,8 +22,6 @@ module Catocat.Prelude (
 import Catocat.Prelude.Engine.VectorSpace ()
 import Catocat.Prelude.Internal
 import Control.Applicative
-import Control.Monad (forever)
-import Control.Monad.Cont (Cont, cont, runCont)
 import Control.Monad.IO.Class
 import Data.Foldable
 import Data.Function ((&))
@@ -39,33 +32,6 @@ import FRP.Yampa
 import GHC.Stack (HasCallStack)
 import Optics hiding (pre)
 import Optics.TH (makeLenses)
-
-
-newtype Swont i o a = Swont {unSwont :: Cont (SF i o) a}
-    deriving newtype (Functor, Applicative, Monad)
-
-
-swont :: SF i (o, Event e) -> Swont i o e
-swont = Swont . cont . switch
-
-
-switchSwont :: Swont i o e -> (e -> SF i o) -> SF i o
-switchSwont sw end = runCont sw.unSwont end
-
-
-foreverSwont :: Swont i o e -> SF i o
-foreverSwont sw = switchSwont (forever sw) $ error "impossible"
-
-
-doUntil ::
-    SF a b ->
-    SF a (Event c) ->
-    SF
-        a
-        (b, Event c)
-doUntil
-    behavior
-    e = behavior &&& e
 
 
 toFloat :: Int -> Float
