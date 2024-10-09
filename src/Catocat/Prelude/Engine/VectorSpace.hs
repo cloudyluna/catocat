@@ -5,10 +5,8 @@
 module Catocat.Prelude.Engine.VectorSpace where
 
 import Catocat.Prelude.Internal
+import FRP.Yampa
 
-import Data.VectorSpace (
-    VectorSpace (dot, negateVector, zeroVector, (*^), (^+^), (^-^)),
- )
 import Linear as L (
     Additive (zero, (^+^), (^-^)),
     Metric (dot),
