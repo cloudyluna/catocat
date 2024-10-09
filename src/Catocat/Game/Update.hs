@@ -40,12 +40,8 @@ onKeyHold field v2 = onEdge
     controllerSignal = field <$> arr (view controller)
 
 
-gameOver :: GameOverStatus -> GameState -> SF a GameState
-gameOver status state = constant $ state & runningState .~ GameOver status
-
-
-parseInput :: IORef GameState -> IO GameState
-parseInput stateRef = do
+processInput :: IORef GameState -> IO GameState
+processInput stateRef = do
     isKeyWDown <- isKeyDown KeyW
     isKeySDown <- isKeyDown KeyS
     isKeyADown <- isKeyDown KeyA

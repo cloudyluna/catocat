@@ -16,7 +16,7 @@ import Catocat.Game.GameEnv (
 import Catocat.Game.Initialize (initGame)
 import Catocat.Game.Render (render)
 import Catocat.Game.Update (
-    parseInput,
+    processInput,
     simulate,
  )
 import Catocat.Prelude
@@ -47,7 +47,7 @@ run = do
         )
         ( \_ -> do
             dt <- realToFrac <$> getDeltaTime
-            state <- parseInput gameStateRef
+            state <- processInput gameStateRef
             pure (dt, Just state)
         )
         ( \_ state -> do
