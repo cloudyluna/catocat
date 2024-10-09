@@ -11,23 +11,12 @@ import Catocat.Prelude.Engine
 simulate :: SF GameEnv GameEnv
 simulate = proc env -> do
     pos <- getPlayerPosition -< env
-    quitRaised <- getExtraQuitEvent -< env
     let updatedPlayer = (env ^. player) & position .~ pos
     returnA
         -<
             env
                 & player
                 .~ updatedPlayer
-                & runningState
-                .~ if quitRaised then Quit else env ^. runningState
-
-
-getExtraQuitEvent :: SF GameEnv Bool
-getExtraQuitEvent = proc env -> do
-    quitEvent <- onPress (view ctrlQuit) True -< env
-    returnA -< isRaised quitEvent
-  where
-    isRaised e = isEvent e && fromEvent e
 
 
 getPlayerPosition :: SF GameEnv Vector2
@@ -38,16 +27,19 @@ getPlayerPosition = proc env -> do
     goRight <- onPress (view ctrlRight) (Vector2 playerSpeed 0) -< env
 
     let walk = asum [goUp, goDown, goLeft, goRight]
+
     direction <- hold zero -< walk
     pos <- integral -< direction
     returnA -< pos
 
 
--- TODO: I don't understand this. Try rewriting for clarity.
-onPress :: (Controller -> Bool) -> a -> SF GameEnv (Event a)
-onPress field a = fmap (fmap (const a)) $ fmap field liftedController >>> edge
+onPress :: (Controller -> Bool) -> Vector2 -> SF GameEnv (Event Vector2)
+onPress field v2 = asEvent <$> onEdge
   where
-    liftedController = arr (view controller)
+    asEvent = fmap $ const v2
+    onEdge = controllerField >>> edge
+    controllerField = field <$> liftedController
+    liftedController = arr $ view controller
 
 
 gameOver :: GameOverStatus -> GameEnv -> SF a GameEnv
