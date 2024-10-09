@@ -46,9 +46,9 @@ run = do
             pure newEnv
         )
         ( \_ -> do
-            dtSecs <- realToFrac <$> getDeltaTime
+            dt <- realToFrac <$> getDeltaTime
             state <- parseInput gameStateRef
-            pure (dtSecs, Just state)
+            pure (dt, Just state)
         )
         ( \_ state -> do
             render state
