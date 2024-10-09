@@ -72,7 +72,7 @@ data GameRunningState = Running | Pause | GameOver GameOverStatus | Quit
     deriving (Show, Eq)
 
 
-data GameEnv = GameEnv
+data GameState = GameState
     { _player :: !Player
     , _controller :: !Controller
     , _runningState :: !GameRunningState
@@ -80,8 +80,8 @@ data GameEnv = GameEnv
     deriving (Show, Eq)
 
 
-makeLenses ''GameEnv
+makeLenses ''GameState
 
 
-makeGameEnv :: Player -> Controller -> GameRunningState -> GameEnv
-makeGameEnv = GameEnv
+makeGameState :: Player -> Controller -> GameRunningState -> GameState
+makeGameState = GameState

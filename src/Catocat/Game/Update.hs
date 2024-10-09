@@ -8,21 +8,21 @@ import Catocat.Prelude
 import Catocat.Prelude.Engine
 
 
-simulate :: SF GameEnv GameEnv
-simulate = proc env -> do
-    pos <- getPlayerPosition -< env
-    let updatedPlayer = (env ^. player) & position .~ pos
+simulate :: SF GameState GameState
+simulate = proc state -> do
+    pos <- getPlayerPosition -< state
+    let updatedPlayer = (state ^. player) & position .~ pos
     returnA
         -<
-            env
+            state
                 & player
                 .~ updatedPlayer
 
 
-getPlayerPosition :: SF GameEnv Vector2
-getPlayerPosition = proc env -> do
-    goLeft <- onKeyHold (view ctrlLeft) (Vector2 (-playerSpeed) 0) -< env
-    goRight <- onKeyHold (view ctrlRight) (Vector2 playerSpeed 0) -< env
+getPlayerPosition :: SF GameState Vector2
+getPlayerPosition = proc state -> do
+    goLeft <- onKeyHold (view ctrlLeft) (Vector2 (-playerSpeed) 0) -< state
+    goRight <- onKeyHold (view ctrlRight) (Vector2 playerSpeed 0) -< state
 
     let walk = goRight <|> goLeft
     direction <- hold zero -< trace (show walk) walk
@@ -30,7 +30,7 @@ getPlayerPosition = proc env -> do
     returnA -< pos
 
 
-onKeyHold :: (Controller -> Bool) -> Vector2 -> SF GameEnv (Event Vector2)
+onKeyHold :: (Controller -> Bool) -> Vector2 -> SF GameState (Event Vector2)
 onKeyHold field v2 = onEdge
   where
     onEdge = proc env -> do
@@ -40,21 +40,21 @@ onKeyHold field v2 = onEdge
     controllerSignal = field <$> arr (view controller)
 
 
-gameOver :: GameOverStatus -> GameEnv -> SF a GameEnv
-gameOver status env = constant $ env & runningState .~ GameOver status
+gameOver :: GameOverStatus -> GameState -> SF a GameState
+gameOver status state = constant $ state & runningState .~ GameOver status
 
 
-parseInput :: IORef GameEnv -> IO GameEnv
-parseInput envRef = do
+parseInput :: IORef GameState -> IO GameState
+parseInput stateRef = do
     isKeyWDown <- isKeyDown KeyW
     isKeySDown <- isKeyDown KeyS
     isKeyADown <- isKeyDown KeyA
     isKeyDDown <- isKeyDown KeyD
     isKeyQDown <- isKeyDown KeyQ
 
-    env <- readIORef envRef
-    let newEnv =
-            env
+    state <- readIORef stateRef
+    let state' =
+            state
                 & controller
                 .~ makeController
                     isKeyWDown
@@ -63,5 +63,5 @@ parseInput envRef = do
                     isKeyDDown
                     isKeyQDown
 
-    writeIORef envRef newEnv
-    pure newEnv
+    writeIORef stateRef state'
+    pure state'

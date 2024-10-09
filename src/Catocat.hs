@@ -3,10 +3,10 @@
 module Catocat (IO, run) where
 
 import Catocat.Game.GameEnv (
-    GameEnv,
     GameRunningState (Quit, Running),
+    GameState,
     defController,
-    makeGameEnv,
+    makeGameState,
     makePlayer,
     makeSpriteFrame,
     player,
@@ -33,33 +33,33 @@ run :: IO ()
 run = do
     let initialSpriteFrame = makeSpriteFrame defRectangle 0 0
         initialPlayer = makePlayer zero Nothing initialSpriteFrame
-        gameEnv = makeGameEnv initialPlayer defController Running
-    gameEnvRef <- newIORef gameEnv
+        gameState = makeGameState initialPlayer defController Running
+    gameStateRef <- newIORef gameState
 
     reactimate
         -- Initiate once.
         ( do
             playerTexture <- initGame
-            env <- readIORef gameEnvRef
-            let newEnv = env & (player % texture) ?~ playerTexture
-            writeIORef gameEnvRef newEnv
+            state <- readIORef gameStateRef
+            let newEnv = state & (player % texture) ?~ playerTexture
+            writeIORef gameStateRef newEnv
             pure newEnv
         )
         ( \_ -> do
             dtSecs <- realToFrac <$> getDeltaTime
-            env <- parseInput gameEnvRef
-            pure (dtSecs, Just env)
+            state <- parseInput gameStateRef
+            pure (dtSecs, Just state)
         )
-        ( \_ env -> do
-            render env
-            terminateIfQuiEventtRaised env
+        ( \_ state -> do
+            render state
+            terminateIfQuiEventtRaised state
         )
         simulate
 
     c'closeWindow
 
 
-terminateIfQuiEventtRaised :: GameEnv -> IO Bool
-terminateIfQuiEventtRaised env = do
+terminateIfQuiEventtRaised :: GameState -> IO Bool
+terminateIfQuiEventtRaised state = do
     shouldQuitWindow <- (== 1) <$> c'windowShouldClose
-    pure $ shouldQuitWindow || env ^. runningState == Quit
+    pure $ shouldQuitWindow || state ^. runningState == Quit
