@@ -21,25 +21,23 @@ simulate = proc env -> do
 
 getPlayerPosition :: SF GameEnv Vector2
 getPlayerPosition = proc env -> do
-    goUp <- onPress (view ctrlUp) (Vector2 0 (-playerSpeed)) -< env
-    goDown <- onPress (view ctrlDown) (Vector2 0 playerSpeed) -< env
-    goLeft <- onPress (view ctrlLeft) (Vector2 (-playerSpeed) 0) -< env
-    goRight <- onPress (view ctrlRight) (Vector2 playerSpeed 0) -< env
+    goLeft <- onKeyHold (view ctrlLeft) (Vector2 (-playerSpeed) 0) -< env
+    goRight <- onKeyHold (view ctrlRight) (Vector2 playerSpeed 0) -< env
 
-    let walk = asum [goUp, goDown, goLeft, goRight]
-
+    let walk = goRight <|> goLeft
     direction <- hold zero -< trace (show walk) walk
     pos <- integral -< direction
     returnA -< pos
 
 
-onPress :: (Controller -> Bool) -> Vector2 -> SF GameEnv (Event Vector2)
-onPress field v2 = asEvent <$> onEdge
+onKeyHold :: (Controller -> Bool) -> Vector2 -> SF GameEnv (Event Vector2)
+onKeyHold field v2 = onEdge
   where
-    asEvent = fmap $ const v2
-    onEdge = controllerFieldSignal >>> edge
-    controllerFieldSignal = field <$> liftedController
-    liftedController = arr $ view controller
+    onEdge = proc env -> do
+        isHeldDown <- controllerSignal -< env
+        returnA -< if isHeldDown then Event v2 else Event zero
+
+    controllerSignal = field <$> arr (view controller)
 
 
 gameOver :: GameOverStatus -> GameEnv -> SF a GameEnv
@@ -52,7 +50,6 @@ parseInput envRef = do
     isKeySDown <- isKeyDown KeyS
     isKeyADown <- isKeyDown KeyA
     isKeyDDown <- isKeyDown KeyD
-    isKeyDUp <- isKeyUp KeyD
     isKeyQDown <- isKeyDown KeyQ
 
     env <- readIORef envRef
@@ -64,7 +61,6 @@ parseInput envRef = do
                     isKeySDown
                     isKeyADown
                     isKeyDDown
-                    isKeyDUp
                     isKeyQDown
 
     writeIORef envRef newEnv

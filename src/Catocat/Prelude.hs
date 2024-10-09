@@ -1,14 +1,15 @@
 {-# LANGUAGE DerivingStrategies #-}
 
 module Catocat.Prelude (
+    module Catocat.Prelude.Internal,
+    module Control.Applicative,
     module Control.Monad.IO.Class,
     module Data.Function,
-    module Optics,
-    module Optics.TH,
+    module Data.Foldable,
     module Data.IORef,
     module FRP.Yampa,
-    module Data.Foldable,
-    module Catocat.Prelude.Internal,
+    module Optics,
+    module Optics.TH,
     toFloat,
     toInt,
     fromJust,
@@ -20,10 +21,12 @@ module Catocat.Prelude (
     foreverSwont,
     doUntil,
     trace,
+    traceShowId,
 ) where
 
 import Catocat.Prelude.Engine.VectorSpace ()
 import Catocat.Prelude.Internal
+import Control.Applicative
 import Control.Monad (forever)
 import Control.Monad.Cont (Cont, cont, runCont)
 import Control.Monad.IO.Class
@@ -86,7 +89,12 @@ notImplemented = error "Not implemented"
 
 {-# WARNING trace "'trace' remains in code" #-}
 trace :: String -> a -> a
-trace = Debug.Trace.trace
+trace s = Debug.Trace.trace ("TRACE: " ++ s)
+
+
+{-# WARNING traceShowId "'traceShowId' remains in code" #-}
+traceShowId :: String -> a -> a
+traceShowId = Debug.Trace.trace
 
 
 pass :: (MonadIO m) => m ()
