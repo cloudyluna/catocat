@@ -6,28 +6,33 @@ import Catocat.Game.Constant (playerSpeed)
 import Catocat.Game.GameEnv
 import Catocat.Prelude
 import Catocat.Prelude.Engine
+import FRP.Yampa.Conditional (provided)
 
 
 simulate :: SF GameState GameState
 simulate = proc state -> do
     pos <- getPlayerPosition -< state
-    let updatedPlayer = (state ^. player) & position .~ pos
-    returnA
-        -<
-            state
-                & player
-                .~ updatedPlayer
+    let player' = state ^. player & position .~ pos
+    returnA -< state & player .~ player'
 
 
 getPlayerPosition :: SF GameState Vector2
 getPlayerPosition = proc state -> do
+    goUp <- onKeyHold (view ctrlUp) (Vector2 0 (-playerSpeed)) -< state
+    goDown <- onKeyHold (view ctrlDown) (Vector2 0 playerSpeed) -< state
     goLeft <- onKeyHold (view ctrlLeft) (Vector2 (-playerSpeed) 0) -< state
     goRight <- onKeyHold (view ctrlRight) (Vector2 playerSpeed 0) -< state
 
-    let walk = goRight <|> goLeft
-    direction <- hold zero -< trace (show walk) walk
+    direction <- hold zero -< walkTillStop [goUp, goDown, goLeft, goRight]
     pos <- integral -< direction
     returnA -< pos
+  where
+    walkTillStop directions =
+        Event $
+            if isEvent (singleDirWalkFrom directions)
+                then fromEvent (singleDirWalkFrom directions)
+                else zero
+    singleDirWalkFrom = asum
 
 
 onKeyHold :: (Controller -> Bool) -> Vector2 -> SF GameState (Event Vector2)
@@ -35,7 +40,7 @@ onKeyHold field v2 = onEdge
   where
     onEdge = proc env -> do
         isHeldDown <- controllerSignal -< env
-        returnA -< if isHeldDown then Event v2 else Event zero
+        returnA -< if isHeldDown then Event v2 else NoEvent
 
     controllerSignal = field <$> arr (view controller)
 

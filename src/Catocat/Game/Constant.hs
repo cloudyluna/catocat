@@ -13,4 +13,4 @@ windowHeight = 600
 
 -- Pixel.
 playerSpeed :: Float
-playerSpeed = 400.0
+playerSpeed = 200.0

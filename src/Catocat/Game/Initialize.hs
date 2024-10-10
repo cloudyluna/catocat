@@ -1,5 +1,6 @@
 module Catocat.Game.Initialize where
 
+import Catocat.Game.Constant (windowHeight, windowWidth)
 import Catocat.Prelude
 import Catocat.Prelude.Engine (
     Texture,
@@ -13,7 +14,7 @@ import Foreign.C (newCString)
 -- | Initialise rendering system.
 initGame :: IO Texture
 initGame = do
-    newCString "Cat O Cat" >>= c'initWindow 600 480
+    newCString "Cat O Cat" >>= c'initWindow windowWidth windowHeight
     setTargetFPS 60
     preload
 
