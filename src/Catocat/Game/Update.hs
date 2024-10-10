@@ -6,7 +6,6 @@ import Catocat.Game.Constant (playerSpeed)
 import Catocat.Game.GameEnv
 import Catocat.Prelude
 import Catocat.Prelude.Engine
-import FRP.Yampa.Conditional (provided)
 
 
 simulate :: SF GameState GameState
